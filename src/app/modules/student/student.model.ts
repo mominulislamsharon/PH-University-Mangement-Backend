@@ -6,10 +6,9 @@ import {
   TStudent,
   StudentModel,
   TUserName,
-} from './student/student.interface';
+} from './student.interface';
 
-import bcrypt from 'bcrypt';
-import config from '../config';
+
 
 const userNameSchema = new Schema<TUserName>({
   firstname: {
@@ -126,10 +125,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Student ID is required. Please provide a unique ID.'],
       unique: true,
     },
-    password: {
-      type: String,
-      required: [true, 'Password is required. Please provide a password.'],
-      minlength: [20, 'Password must be at least 8 characters long.'],
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'user id is required. Please provide'],
+      unique: true,
+      ref: 'User',
     },
     name: {
       type: userNameSchema,
@@ -158,10 +158,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
         'Email is required. Please provide a valid email address.',
       ],
       unique: true,
-      // validate: {
-      //   validator: (value: string) => validator.isEmail(value),
-      //   message: '{VALUE} is not a valid email address.',
-      // }
     },
     contactNumber: {
       type: String,
@@ -218,15 +214,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ],
     },
     profileImg: { type: String },
-    isActive: {
-      type: String,
-      enum: {
-        values: ['active', 'blocked'],
-        message:
-          '{VALUE} is not valid. Valid options are "active" or "blocked".',
-      },
-      default: 'active',
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -245,23 +232,7 @@ studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstname} ${this.name.middlename} ${this.name.lastname}`;
 });
 
-// pre save middleware / hook : will work on create() save()
-studentSchema.pre('save', async function (next) {
-  // console.log(this, 'pre hook : we will save  data');
-  const user = this;
-  // hashing password and save into DB
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-  next();
-});
 
-// post save middleware / hook
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
-});
 
 // Query middleware
 
@@ -276,7 +247,6 @@ studentSchema.pre('findOne', function (next) {
   next();
 });
 
-// [{$match: {isDeleted: {$ne: : true}}, {$match: {id: 'S12354588152'}}]
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
@@ -290,12 +260,5 @@ studentSchema.statics.isUserExists = async function (id: string) {
 
   return existingUser;
 };
-
-// creating a custom instance method
-// studentSchema.methods.isUserExists = async function (id: string){
-//   const existingUser = await Student.findOne({id});
-
-//   return existingUser;
-// }
 
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);
