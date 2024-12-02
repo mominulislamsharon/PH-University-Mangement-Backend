@@ -8,8 +8,6 @@ import {
   TUserName,
 } from './student.interface';
 
-
-
 const userNameSchema = new Schema<TUserName>({
   firstname: {
     type: String,
@@ -145,11 +143,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Gender is required. Please specify the gender.'],
     },
     dateOfBirth: {
-      type: String,
-      required: [
-        true,
-        'Date of birth is required. Please provide the date of birth.',
-      ],
+      type: Date,
     },
     email: {
       type: String,
@@ -214,6 +208,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ],
     },
     profileImg: { type: String },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -232,8 +230,6 @@ studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstname} ${this.name.middlename} ${this.name.lastname}`;
 });
 
-
-
 // Query middleware
 
 studentSchema.pre('find', function (next) {
@@ -246,7 +242,6 @@ studentSchema.pre('findOne', function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
-
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });

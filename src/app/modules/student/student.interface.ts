@@ -28,7 +28,7 @@ export type TStudent = {
   password: string;
   name: TUserName;
   gender: 'male' | 'female' | 'other';
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   email: string;
   contactNumber: string;
   emergencyContactNo: string;
@@ -38,6 +38,7 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImg?: string;
+  admissionSemester: Types.ObjectId;
   isDeleted: boolean;
 };
 
@@ -46,8 +47,6 @@ export type TStudent = {
 export interface StudentModel extends Model<TStudent> {
   isUserExists(id: string): Promise<TStudent | null>;
 }
-
-
 
 // for creating instance
 

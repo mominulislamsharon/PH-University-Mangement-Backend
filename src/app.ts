@@ -1,7 +1,5 @@
-import express, { Application,  Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { StudentRoutes } from './app/modules/student/student.route';
-import { UserRotues } from './app/modules/user/user.route';
 import globalErrorHandler from './app/middleware/globalErrorHandler';
 import notFound from './app/middleware/notFound';
 import router from './app/routes';
@@ -24,7 +22,7 @@ app.get('/', test);
 
 app.use(globalErrorHandler);
 
-// not found 
-app.use(notFound)
+// not found
+app.use(notFound);
 
 export default app;
