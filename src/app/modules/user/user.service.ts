@@ -10,7 +10,7 @@ import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 
 // ----------->
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createFacultyIntoDB = async (password: string, payload: TStudent) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -67,5 +67,5 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 };
 
 export const UserService = {
-  createStudentIntoDB,
+   createFacultyIntoDB,
 };
