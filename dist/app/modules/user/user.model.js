@@ -20,6 +20,7 @@ const userSchema = new mongoose_1.Schema({
     id: {
         type: String,
         required: true,
+        unique: true,
     },
     password: {
         type: String,
@@ -31,12 +32,12 @@ const userSchema = new mongoose_1.Schema({
     },
     role: {
         type: String,
-        enum: ["student", "admin", "faculty"]
+        enum: ['student', 'admin', 'faculty'],
     },
     status: {
         type: String,
-        enum: ["in-progress", "blocked"],
-        default: "in-progress",
+        enum: ['in-progress', 'blocked'],
+        default: 'in-progress',
     },
     isDeleted: {
         type: Boolean,

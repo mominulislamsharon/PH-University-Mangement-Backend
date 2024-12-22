@@ -8,6 +8,11 @@ import { AdminSearchableFields } from './admin.constant';
 import { TAdmin } from './admin.interface';
 import { Admin } from './admin.model';
 
+// const createAdminIntoDB = async (payload: TAdmin) => {
+//   const result = await Admin.create(payload);
+//   return result;
+// };
+
 const getAllAdminsFromDB = async (query: Record<string, unknown>) => {
   const adminQuery = new QueryBuilder(Admin.find(), query)
     .search(AdminSearchableFields)
@@ -38,7 +43,7 @@ const updateAdminIntoDB = async (id: string, payload: Partial<TAdmin>) => {
     }
   }
 
-  const result = await Admin.findByIdAndUpdate({ id }, modifiedUpdatedData, {
+  const result = await Admin.findByIdAndUpdate(id, modifiedUpdatedData, {
     new: true,
     runValidators: true,
   });
@@ -56,6 +61,8 @@ const deleteAdminFromDB = async (id: string) => {
       { isDeleted: true },
       { new: true, session },
     );
+
+    console.log(deletedAdmin);
 
     if (!deletedAdmin) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
@@ -86,6 +93,7 @@ const deleteAdminFromDB = async (id: string) => {
 };
 
 export const AdminServices = {
+  // createAdminIntoDB,
   getAllAdminsFromDB,
   getSingleAdminFromDB,
   updateAdminIntoDB,

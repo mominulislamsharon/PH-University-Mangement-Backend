@@ -145,11 +145,7 @@ const studentSchema = new mongoose_1.Schema({
         required: [true, 'Gender is required. Please specify the gender.'],
     },
     dateOfBirth: {
-        type: String,
-        required: [
-            true,
-            'Date of birth is required. Please provide the date of birth.',
-        ],
+        type: Date,
     },
     email: {
         type: String,
@@ -213,9 +209,17 @@ const studentSchema = new mongoose_1.Schema({
         ],
     },
     profileImg: { type: String },
+    admissionSemester: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'AcademicSemester',
+    },
     isDeleted: {
         type: Boolean,
         default: false,
+    },
+    academicDepartment: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'AcademicDepartment',
     },
 }, {
     toJSON: {
@@ -224,7 +228,8 @@ const studentSchema = new mongoose_1.Schema({
 });
 // virtual
 studentSchema.virtual('fullName').get(function () {
-    return `${this.name.firstname} ${this.name.middlename} ${this.name.lastname}`;
+    var _a, _b, _c;
+    return `${(_a = this === null || this === void 0 ? void 0 : this.name) === null || _a === void 0 ? void 0 : _a.firstname} ${(_b = this === null || this === void 0 ? void 0 : this.name) === null || _b === void 0 ? void 0 : _b.middlename} ${(_c = this === null || this === void 0 ? void 0 : this.name) === null || _c === void 0 ? void 0 : _c.lastname}`;
 });
 // Query middleware
 studentSchema.pre('find', function (next) {

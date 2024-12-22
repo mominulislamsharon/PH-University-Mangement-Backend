@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
-import { FacultyModel, TFaculty, TUserName } from "./faculty.interface";
-import { BloodGroup, Gender } from "./faculty.constant";
+import { model, Schema } from 'mongoose';
+import { FacultyModel, TFaculty, TUserName } from './faculty.interface';
+import { BloodGroup, Gender } from './faculty.constant';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -80,7 +80,7 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
     academicDepartment: {
       type: Schema.Types.ObjectId,
       required: [true, 'User id is required'],
-      ref: 'AademicDepartment',
+      ref: 'AcademicDepartment',
     },
     isDeleted: {
       type: Boolean,
@@ -121,13 +121,16 @@ facultySchema.pre('aggregate', function (next) {
   next();
 });
 
-
 //checking if user is already exist!
 facultySchema.statics.isUserExists = async function (id: string) {
   const existingUser = await Faculty.findOne({ id });
   return existingUser;
 };
 
-
+//checking if user is already exist!
+facultySchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Faculty.findOne({ id });
+  return existingUser;
+};
 
 export const Faculty = model<TFaculty, FacultyModel>('Faculty', facultySchema);

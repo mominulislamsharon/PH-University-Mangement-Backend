@@ -1,9 +1,9 @@
-import { Model, Types } from "mongoose";
+/* eslint-disable no-unused-vars */
+import { Model, Types } from 'mongoose';
 
 export type TGender = 'male' | 'female' | 'other';
 
-
-export type TBloodGroup = 
+export type TBloodGroup =
   | 'A+'
   | 'A-'
   | 'B+'
@@ -13,12 +13,11 @@ export type TBloodGroup =
   | 'O+'
   | 'O-';
 
-
 export type TUserName = {
   firstName: string;
   middleName: string;
   lastName: string;
-}
+};
 
 export type TFaculty = {
   id: string;
@@ -38,6 +37,6 @@ export type TFaculty = {
   isDeleted: boolean;
 };
 
-export interface FacultyModel extends Model<TFaculty>{
-  iUserExists(id: string): Promise<TFaculty | null> ;
+export interface FacultyModel extends Model<TFaculty> {
+  isUserExists(id: string): Promise<TFaculty | null>;
 }

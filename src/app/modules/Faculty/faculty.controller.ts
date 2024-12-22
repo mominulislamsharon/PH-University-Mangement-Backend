@@ -3,9 +3,19 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { FacultyServices } from './faculty.service';
 
-const getAllFaculties = catchAsync(async (req, res) => {
-  const result = await FacultyServices.getAllFacultiesFromDB(req.query);
+// const createFaculty = catchAsync(async (req, res) => {
+//   const result = await FacultyServices.createFacultyIntoDB(req.body);
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: 'Faculty created successfully',
+//     data: result,
+//   });
+// });
 
+const getAllFaculties = catchAsync(async (req, res) => {
+  console.log(req.cookies);
+  const result = await FacultyServices.getAllFacultiesFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -16,7 +26,7 @@ const getAllFaculties = catchAsync(async (req, res) => {
 
 const getSingleFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await FacultyServices.getSingleFacultyFromDB( id );
+  const result = await FacultyServices.getSingleFacultyFromDB(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -26,11 +36,10 @@ const getSingleFaculty = catchAsync(async (req, res) => {
   });
 });
 
-
 const updateFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { faculty } = req.body;
-  const result = await FacultyServices.updateFacultyIntoDB( id , faculty);
+  const result = await FacultyServices.updateFacultyIntoDB(id, faculty);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -41,7 +50,7 @@ const updateFaculty = catchAsync(async (req, res) => {
 });
 
 const deleteFaculty = catchAsync(async (req, res) => {
-  const {  id } = req.params;
+  const { id } = req.params;
   const result = await FacultyServices.deleteFacultyFromDB(id);
 
   sendResponse(res, {
@@ -53,6 +62,7 @@ const deleteFaculty = catchAsync(async (req, res) => {
 });
 
 export const FacultyControllers = {
+  // createFaculty,
   getAllFaculties,
   getSingleFaculty,
   deleteFaculty,
