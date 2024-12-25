@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const config_1 = __importDefault(require("../../config"));
 const user_model_1 = require("./user.model");
 const student_model_1 = require("../student/student.model");
@@ -21,14 +22,20 @@ const user_utils_1 = require("./user.utils");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const http_status_1 = __importDefault(require("http-status"));
+const academicDepartment_model_1 = require("../academicDepartment/academicDepartment.model");
+const faculty_model_1 = require("../Faculty/faculty.model");
+const admin_model_1 = require("../Admin/admin.model");
+const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
 // ----------->
-const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     // create a user object
     const userData = {};
     // if password is not given, use default password
     userData.password = password || config_1.default.default_password;
     // set student role
     userData.role = 'student';
+    userData.email = payload.email;
     // find academic semester info
     const admissionSemester = yield acedemicSemester_model_1.AcademicSemester.findById(payload.admissionSemester);
     const session = yield mongoose_1.default.startSession();
@@ -39,6 +46,10 @@ const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Admission semester not found!');
         }
         userData.id = yield (0, user_utils_1.generateStudentId)(admissionSemester);
+        const imageName = `${userData.id} ${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstname}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        // send image to cloudinary
+        const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
         // create a user (transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session }); //  array
         // create a student
@@ -48,6 +59,7 @@ const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
         // set id , _id as user
         payload.id = newUser[0].id;
         payload.user = newUser[0]._id; // reference _id
+        payload.profileImg = secure_url;
         // create a student (transaction-2)
         const newStudent = yield student_model_1.Student.create([payload], { session });
         if (!newStudent.length) {
@@ -64,6 +76,122 @@ const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
         throw err;
     }
 });
+const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // create a user object
+    const userData = {};
+    //if password is not given , use deafult password
+    userData.password = password || config_1.default.default_password;
+    // const imageName = `${userData.id} ${payload?.name?.firstName}`;
+    //   const path = file?.path;
+    //   // send image to cloudinary
+    //   const {secure_url} = await  sendImageToCloudinary(imageName,path);
+    //set faculty role
+    userData.role = 'faculty';
+    // set faculty email
+    userData.email = payload.email;
+    // find academic department info
+    const academicDepartment = yield academicDepartment_model_1.AcademicDepartment.findById(payload.academicDepartment);
+    if (!academicDepartment) {
+        throw new AppError_1.default(400, 'Academic department not found');
+    }
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        //set  generated id
+        userData.id = yield (0, user_utils_1.generateFacultyId)();
+        // create a user (transaction-1)
+        const newUser = yield user_model_1.User.create([userData], { session }); // array
+        //create a faculty
+        if (!newUser.length) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create user');
+        }
+        // set id , _id as user
+        payload.id = newUser[0].id;
+        payload.user = newUser[0]._id; //reference _id
+        // payload.profileImg= secure_url
+        // create a faculty (transaction-2)
+        const newFaculty = yield faculty_model_1.Faculty.create([payload], { session });
+        if (!newFaculty.length) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create faculty');
+        }
+        yield session.commitTransaction();
+        yield session.endSession();
+        return newFaculty;
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        throw err;
+    }
+});
+const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // create a user object
+    const userData = {};
+    //if password is not given , use deafult password
+    userData.password = password || config_1.default.default_password;
+    // const imageName = `${userData.id} ${payload?.name?.firstName}`;
+    // const path = file?.path;
+    // // send image to cloudinary
+    // const {secure_url} = await  sendImageToCloudinary(imageName,path);
+    //set admin role
+    userData.role = 'admin';
+    // set admin email
+    userData.email = payload.email;
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        //set  generated id
+        userData.id = yield (0, user_utils_1.generateAdminId)();
+        // create a user (transaction-1)
+        const newUser = yield user_model_1.User.create([userData], { session });
+        //create a admin
+        if (!newUser.length) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create admin');
+        }
+        // set id , _id as user
+        payload.id = newUser[0].id;
+        payload.user = newUser[0]._id; //reference _id
+        // payload.profileImg= secure_url
+        // create a admin (transaction-2)
+        const newAdmin = yield admin_model_1.Admin.create([payload], { session });
+        if (!newAdmin.length) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create admin');
+        }
+        yield session.commitTransaction();
+        yield session.endSession();
+        return newAdmin;
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        throw err;
+    }
+});
+const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
+    // const decoded = verifyToken(token, config.jwt_access_secret as string);
+    // const { userId, role } = decoded;
+    let result = null;
+    if (role === 'student') {
+        result = yield student_model_1.Student.findOne({ id: userId }).populate('admissionSemester  academicDepartment');
+    }
+    if (role === 'admin') {
+        result = yield admin_model_1.Admin.findOne({ id: userId }).populate('user');
+    }
+    if (role === 'faculty') {
+        result = yield faculty_model_1.Faculty.findOne({ id: userId }).populate('user');
+    }
+    return result;
+});
+const changeStatus = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.findByIdAndUpdate(id, payload, {
+        new: true,
+    });
+    return result;
+});
 exports.UserService = {
+    createStudentIntoDB,
     createFacultyIntoDB,
+    createAdminIntoDB,
+    getMe,
+    changeStatus,
 };

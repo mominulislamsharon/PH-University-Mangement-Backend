@@ -14,7 +14,7 @@ router.post(
   AcademicFacultyController.createAcademicFaculty,
 );
 
-router.get('/',auth(), AcademicFacultyController.getAllAcademicFaculties);
+router.get('/', auth(), AcademicFacultyController.getAllAcademicFaculties);
 
 router.get('/:facultyId', AcademicFacultyController.getSingleAcademicFaculty);
 

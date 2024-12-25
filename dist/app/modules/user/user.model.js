@@ -13,11 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
+/* eslint-disable @typescript-eslint/no-this-alias */
 const mongoose_1 = require("mongoose");
 const config_1 = __importDefault(require("../../config"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const user_constant_1 = require("./user.constant");
 const userSchema = new mongoose_1.Schema({
     id: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    email: {
         type: String,
         required: true,
         unique: true,
@@ -25,10 +32,14 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         required: true,
+        select: 0,
     },
     needPasswordChange: {
         type: Boolean,
         default: true,
+    },
+    passwordChangeAt: {
+        type: Date,
     },
     role: {
         type: String,
@@ -36,7 +47,7 @@ const userSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: ['in-progress', 'blocked'],
+        enum: user_constant_1.UserStatus,
         default: 'in-progress',
     },
     isDeleted: {
@@ -59,4 +70,18 @@ userSchema.post('save', function (doc, next) {
     doc.password = '';
     next();
 });
+userSchema.statics.isUserExistsByCustomId = function (id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield exports.User.findOne({ id }).select('+password');
+    });
+};
+userSchema.statics.isPasswordMatched = function (plainTextPassword, hashedPassword) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield bcrypt_1.default.compare(plainTextPassword, hashedPassword);
+    });
+};
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (passwordChangedTimestamp, jwtIssuedTimestamp) {
+    const passwordChangeTime = new Date(passwordChangedTimestamp).getTime() / 1000;
+    return passwordChangeTime > jwtIssuedTimestamp;
+};
 exports.User = (0, mongoose_1.model)('User', userSchema);

@@ -2,12 +2,23 @@ import express from 'express';
 import { StudentController } from './student_controller';
 import validateRequest from '../../middleware/validateRequest';
 import { updateStudentValidationSchema } from './student.validation';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
 // will call controller func
 
-router.get('/:id', StudentController.getSingleStudent);
+router.get(
+  '/:id',
+  auth('admin', 'faculty'),
+  StudentController.getSingleStudent,
+);
+
+router.get(
+  '/',
+
+  StudentController.getAllStudents,
+);
 
 router.patch(
   '/:id',
@@ -16,7 +27,5 @@ router.patch(
 );
 
 router.delete('/:id', StudentController.deleteStudent);
-
-router.get('/', StudentController.getAllStudents);
 
 export const StudentRoutes = router;

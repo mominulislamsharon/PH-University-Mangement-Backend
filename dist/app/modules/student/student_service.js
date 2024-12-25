@@ -83,6 +83,7 @@ const getAllStudentsFromDB = (query) => __awaiter(void 0, void 0, void 0, functi
     // const fieldQuery = await limitQuery.select(fields)
     // return fieldQuery;
     const studentQuery = new QueryBuilder_1.default(student_model_1.Student.find()
+        .populate('user')
         .populate('admissionSemester')
         .populate({
         path: 'academicDepartment',
@@ -95,8 +96,12 @@ const getAllStudentsFromDB = (query) => __awaiter(void 0, void 0, void 0, functi
         .sort()
         .paginate()
         .fields();
+    const meta = yield studentQuery.countTotal();
     const result = yield studentQuery.modelQuery;
-    return result;
+    return {
+        meta,
+        result,
+    };
 });
 const getSingleStudentFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield student_model_1.Student.findById(id)
@@ -151,7 +156,7 @@ const deleteStudentFromDB = (id) => __awaiter(void 0, void 0, void 0, function* 
         if (!deletedStudent) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to delete student');
         }
-        // get user _id from deletedStudent 
+        // get user _id from deletedStudent
         const userId = deletedStudent.user;
         const deletedUser = yield user_model_1.User.findByIdAndUpdate(userId, { isDeleted: true }, { new: true, session });
         if (!deletedUser) {

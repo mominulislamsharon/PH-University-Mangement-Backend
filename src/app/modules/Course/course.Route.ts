@@ -14,7 +14,11 @@ router.post(
 );
 router.get('/', CourseControllers.getAllCourses);
 
-router.get('/:id', auth('student', 'faculty', 'admin'), CourseControllers.getSingleCourse);
+router.get(
+  '/:id',
+  auth('student', 'faculty', 'admin'),
+  CourseControllers.getSingleCourse,
+);
 
 router.patch(
   '/:id',
@@ -23,7 +27,7 @@ router.patch(
   CourseControllers.updateCourse,
 );
 
-router.delete('/:id',auth( 'admin'), CourseControllers.deleteCourse);
+router.delete('/:id', auth('admin'), CourseControllers.deleteCourse);
 
 router.put(
   '/:courseId/assign-faculties',

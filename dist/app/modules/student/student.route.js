@@ -8,10 +8,11 @@ const express_1 = __importDefault(require("express"));
 const student_controller_1 = require("./student_controller");
 const validateRequest_1 = __importDefault(require("../../middleware/validateRequest"));
 const student_validation_1 = require("./student.validation");
+const auth_1 = __importDefault(require("../../middleware/auth"));
 const router = express_1.default.Router();
 // will call controller func
-router.get('/:id', student_controller_1.StudentController.getSingleStudent);
+router.get('/:id', (0, auth_1.default)('admin', 'faculty'), student_controller_1.StudentController.getSingleStudent);
+router.get('/', student_controller_1.StudentController.getAllStudents);
 router.patch('/:id', (0, validateRequest_1.default)(student_validation_1.updateStudentValidationSchema), student_controller_1.StudentController.updateStudent);
 router.delete('/:id', student_controller_1.StudentController.deleteStudent);
-router.get('/', student_controller_1.StudentController.getAllStudents);
 exports.StudentRoutes = router;
