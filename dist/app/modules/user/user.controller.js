@@ -48,10 +48,6 @@ const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     });
 }));
 const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const token = req.headers.authorization
-    // if(!token){
-    //   throw new AppError(httpStatus.NOT_FOUND, 'Token not found');
-    // }
     const { userId, role } = req.user;
     const result = yield user_service_1.UserService.getMe(userId, role);
     (0, sendResponse_1.default)(res, {

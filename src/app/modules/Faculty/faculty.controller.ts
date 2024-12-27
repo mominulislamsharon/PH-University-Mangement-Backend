@@ -3,24 +3,14 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { FacultyServices } from './faculty.service';
 
-// const createFaculty = catchAsync(async (req, res) => {
-//   const result = await FacultyServices.createFacultyIntoDB(req.body);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Faculty created successfully',
-//     data: result,
-//   });
-// });
-
 const getAllFaculties = catchAsync(async (req, res) => {
-  console.log(req.cookies);
   const result = await FacultyServices.getAllFacultiesFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Faculties are retrieved succesfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
@@ -62,7 +52,6 @@ const deleteFaculty = catchAsync(async (req, res) => {
 });
 
 export const FacultyControllers = {
-  // createFaculty,
   getAllFaculties,
   getSingleFaculty,
   deleteFaculty,

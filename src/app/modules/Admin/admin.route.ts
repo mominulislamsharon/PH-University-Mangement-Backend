@@ -2,11 +2,8 @@ import express from 'express';
 import validateRequest from '../../middleware/validateRequest';
 import { AdminControllers } from './admin.controller';
 import { updateAdminValidationSchema } from './admin.valitaion';
-// import { updateAdminValidationSchema } from './admin.validation';
 
 const router = express.Router();
-
-// router.post('/create-admin', AdminControllers.createAdmin);
 
 router.get('/', AdminControllers.getAllAdmins);
 

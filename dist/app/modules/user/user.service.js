@@ -38,18 +38,27 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
     userData.email = payload.email;
     // find academic semester info
     const admissionSemester = yield acedemicSemester_model_1.AcademicSemester.findById(payload.admissionSemester);
+    // set manually generated id
+    if (!admissionSemester) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Admission semester not found!');
+    }
+    //find department
+    const academicDepartment = yield academicDepartment_model_1.AcademicDepartment.findById(payload.academicDepartment);
+    if (!academicDepartment) {
+        throw new AppError_1.default(400, 'Academic department not found!');
+    }
+    payload.academicFaculty = academicDepartment.academicFaculty;
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
-        // set manually generated id
-        if (!admissionSemester) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Admission semester not found!');
-        }
         userData.id = yield (0, user_utils_1.generateStudentId)(admissionSemester);
-        const imageName = `${userData.id} ${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstname}`;
-        const path = file === null || file === void 0 ? void 0 : file.path;
-        // send image to cloudinary
-        const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+        if (file) {
+            const imageName = `${userData.id} ${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstname}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            // send image to cloudinary
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         // create a user (transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session }); //  array
         // create a student
@@ -59,7 +68,6 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
         // set id , _id as user
         payload.id = newUser[0].id;
         payload.user = newUser[0]._id; // reference _id
-        payload.profileImg = secure_url;
         // create a student (transaction-2)
         const newStudent = yield student_model_1.Student.create([payload], { session });
         if (!newStudent.length) {
@@ -77,14 +85,11 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
     }
 });
 const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     // create a user object
     const userData = {};
-    //if password is not given , use deafult password
+    //if password is not given , use default password
     userData.password = password || config_1.default.default_password;
-    // const imageName = `${userData.id} ${payload?.name?.firstName}`;
-    //   const path = file?.path;
-    //   // send image to cloudinary
-    //   const {secure_url} = await  sendImageToCloudinary(imageName,path);
     //set faculty role
     userData.role = 'faculty';
     // set faculty email
@@ -94,11 +99,19 @@ const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 
     if (!academicDepartment) {
         throw new AppError_1.default(400, 'Academic department not found');
     }
+    payload.academicFaculty = academicDepartment === null || academicDepartment === void 0 ? void 0 : academicDepartment.academicFaculty;
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
         //set  generated id
         userData.id = yield (0, user_utils_1.generateFacultyId)();
+        if (file) {
+            const imageName = `${userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            //send image to cloudinary
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         // create a user (transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session }); // array
         //create a faculty
@@ -108,7 +121,6 @@ const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 
         // set id , _id as user
         payload.id = newUser[0].id;
         payload.user = newUser[0]._id; //reference _id
-        // payload.profileImg= secure_url
         // create a faculty (transaction-2)
         const newFaculty = yield faculty_model_1.Faculty.create([payload], { session });
         if (!newFaculty.length) {
@@ -125,14 +137,11 @@ const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 
     }
 });
 const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     // create a user object
     const userData = {};
     //if password is not given , use deafult password
     userData.password = password || config_1.default.default_password;
-    // const imageName = `${userData.id} ${payload?.name?.firstName}`;
-    // const path = file?.path;
-    // // send image to cloudinary
-    // const {secure_url} = await  sendImageToCloudinary(imageName,path);
     //set admin role
     userData.role = 'admin';
     // set admin email
@@ -142,6 +151,13 @@ const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0,
         session.startTransaction();
         //set  generated id
         userData.id = yield (0, user_utils_1.generateAdminId)();
+        if (file) {
+            const imageName = `${userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            //send image to cloudinary
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         // create a user (transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session });
         //create a admin
@@ -151,7 +167,6 @@ const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0,
         // set id , _id as user
         payload.id = newUser[0].id;
         payload.user = newUser[0]._id; //reference _id
-        // payload.profileImg= secure_url
         // create a admin (transaction-2)
         const newAdmin = yield admin_model_1.Admin.create([payload], { session });
         if (!newAdmin.length) {
@@ -168,8 +183,6 @@ const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0,
     }
 });
 const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
-    // const decoded = verifyToken(token, config.jwt_access_secret as string);
-    // const { userId, role } = decoded;
     let result = null;
     if (role === 'student') {
         result = yield student_model_1.Student.findOne({ id: userId }).populate('admissionSemester  academicDepartment');

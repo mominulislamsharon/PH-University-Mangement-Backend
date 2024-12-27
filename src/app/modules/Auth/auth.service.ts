@@ -8,7 +8,6 @@ import bcrypt from 'bcrypt';
 import { createToken, verifyToken } from './auth.utils';
 import jwt from 'jsonwebtoken';
 import { sendEmail } from '../../utils/sendEmail';
-import sendResponse from '../../utils/sendResponse';
 
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exists

@@ -16,12 +16,14 @@ const createAcademicDepartment = catchAsync(async (req, res) => {
 
 const getAllAcademicDepartment = catchAsync(async (req, res) => {
   const result =
-    await AcademicDepartmentServices.getAllAcademicDepartmentIntoDB();
+    await AcademicDepartmentServices.getAllAcademicDepartmentIntoDB(req.query);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Academic department are retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
